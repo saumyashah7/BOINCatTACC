@@ -266,6 +266,22 @@ with gzip.open("/home/boincadm/project/html/user/stats/team.gz", mode="wt", comp
 # Hosts
 # --------------------
 
+#############
+
+userid_agrees_to_export_hosts_stats ={}
+
+boinc_db = mysql_con.connect(host = os.environ['URL_BASE'].split('/')[-1], port = 3306, user = os.environ["MYSQL_USER"], password = os.environ["MYSQL_UPASS"], database = 'boincserver')
+cursor = boinc_db.cursor(buffered=True)
+cursor.execute("select id from user where show_hosts=1")
+
+for row in cursor:
+    userid_agrees_to_export_hosts_stats[row[0]] = True 
+
+cursor.close()
+boinc_db.close()
+
+#############
+
 ordered_hostids = []
 hostdata_by_hostid = {}
 
@@ -283,6 +299,11 @@ for row in cursor:
 
     if userid not in userid_agrees_to_export_stats:
         continue
+    
+    ###########
+    if userid not in userid_agrees_to_export_hosts_stats:
+        continue
+    ##########
 
     hostdata_by_hostid[hostid] = {"id":hostid, "userid":userid, "total_credit":total_credit, "expavg_credit":expavg_credit,
                                 "expavg_time":expavg_time, "p_vendor":escape_xml(p_vendor), "p_model":escape_xml(p_model),
